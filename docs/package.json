@@ -1,0 +1,14 @@
+{
+  "name": "saascannon-openapi-docs",
+  "version": "0.0.1",
+  "dependencies": {
+    "@redocly/cli": "1.10.5"
+  },
+  "private": true,
+  "scripts": {
+    "gen-package-lock": "npm i --package-lock-only --workspaces false",
+    "start": "redocly preview-docs",
+    "build": "redocly build-docs -o dist/index.html",
+    "test": "redocly lint"
+  }
+}

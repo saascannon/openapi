@@ -1,0 +1,11 @@
+apis:
+  sample@v1:
+    root: ../spec/openapi.json
+extends:
+  - recommended
+rules:
+  no-unused-components: error
+  no-server-example.com: off
+theme:
+  openapi:
+    hideDownloadButton: true

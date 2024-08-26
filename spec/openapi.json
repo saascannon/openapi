@@ -1,0 +1,4584 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Saascannon API",
+    "description": "Manage Saascannon Instance Resources"
+  },
+  "servers": [
+    {
+      "url": "{protocol}://{tenantName}.{clusterName}.saascannon.app/api",
+      "variables": {
+        "protocol": {
+          "default": "https",
+          "enum": ["https", "http"]
+        },
+        "tenantName": {
+          "default": "test-application",
+          "description": "The application name given at creation time"
+        },
+        "clusterName": {
+          "default": "uks-1",
+          "description": "The cluster that the application is a part of"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/metrics": {
+      "parameters": [
+        {
+          "name": "fromDate",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        {
+          "name": "toDate",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Applications"],
+        "summary": "Get application metrics",
+        "operationId": "getApplicationMetrics",
+        "responses": {
+          "200": {
+            "description": "The requested application metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationMetrics"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/applications": {
+      "get": {
+        "tags": ["Applications"],
+        "summary": "Get all applications",
+        "operationId": "getAllApplications",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the applications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ApplicationListItem"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Applications"],
+        "summary": "Create a new Application",
+        "operationId": "createApplication",
+        "requestBody": {
+          "description": "The initial values of the Application",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApplication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/applications/{applicationId}": {
+      "parameters": [
+        {
+          "name": "applicationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Applications"],
+        "summary": "Get a application",
+        "operationId": "getApplication",
+        "responses": {
+          "200": {
+            "description": "The requested application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Applications"],
+        "summary": "Update a application",
+        "operationId": "updateApplication",
+        "requestBody": {
+          "description": "The fields that need to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateApplication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Applications"],
+        "summary": "Delete a application",
+        "operationId": "deleteApplication",
+        "responses": {
+          "204": {
+            "description": "The application was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/provider-products": {
+      "parameters": [
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "provider": {
+                "type": "string",
+                "enum": ["stripe", "paddle"]
+              }
+            }
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Provider Products"],
+        "summary": "List Shop Provider Products",
+        "operationId": "getShopProviderProducts",
+        "responses": {
+          "200": {
+            "description": "All of the provider products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopProviderProduct"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/provider-products/{providerProductId}/prices": {
+      "parameters": [
+        {
+          "name": "providerProductId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "parameters": [
+          {
+            "name": "filterAssignableToPriceInProduct",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "tags": ["Shop Provider Prices"],
+        "summary": "List Shop Provider Prices",
+        "operationId": "getShopProviderPrices",
+        "responses": {
+          "200": {
+            "description": "All of the provider prices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopProviderPrice"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/services": {
+      "get": {
+        "tags": ["Shop Services"],
+        "summary": "List Shop Services",
+        "operationId": "getShopServices",
+        "responses": {
+          "200": {
+            "description": "All of the services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopService"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Services"],
+        "summary": "Create Shop Service",
+        "operationId": "createShopService",
+        "requestBody": {
+          "description": "Create Shop Service Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopService"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shop Service Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopService"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/services/{serviceId}": {
+      "parameters": [
+        {
+          "name": "serviceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Services"],
+        "summary": "Get Shop Service",
+        "operationId": "getShopService",
+        "responses": {
+          "200": {
+            "description": "Get a specific service by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopService"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Shop Services"],
+        "summary": "Update Shop Service",
+        "operationId": "updateShopService",
+        "requestBody": {
+          "description": "Create Shop Service Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopService"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Shop Service",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopService"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shop Services"],
+        "summary": "Delete Shop Service",
+        "operationId": "deleteShopService",
+        "responses": {
+          "204": {
+            "description": "The application was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/billables": {
+      "get": {
+        "tags": ["Shop Billables"],
+        "summary": "List Shop Billables",
+        "operationId": "getShopBillables",
+        "responses": {
+          "200": {
+            "description": "All of the billables",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopBillable"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Billables"],
+        "summary": "Create Shop Billable",
+        "operationId": "createShopBillable",
+        "requestBody": {
+          "description": "Create Shop Billable Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopBillable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shop Billable Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopBillable"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/billables/{billableId}": {
+      "parameters": [
+        {
+          "name": "billableId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Billables"],
+        "summary": "Get Shop Billable",
+        "operationId": "getShopBillable",
+        "responses": {
+          "200": {
+            "description": "Get a specific billable by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopBillable"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Shop Billables"],
+        "summary": "Update Shop Billable",
+        "operationId": "updateShopBillable",
+        "requestBody": {
+          "description": "Create Shop Billable Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopBillable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Shop Billable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopBillable"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shop Billables"],
+        "summary": "Delete Shop Billable",
+        "operationId": "deleteShopBillable",
+        "responses": {
+          "204": {
+            "description": "The application was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/billables/{billableId}/users": {
+      "parameters": [
+        {
+          "name": "billableId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        { "$ref": "#/components/parameters/Pagination-Page" },
+        { "$ref": "#/components/parameters/Pagination-Per-Page" },
+        { "$ref": "#/components/parameters/Search" }
+      ],
+      "get": {
+        "tags": ["Shop Billables"],
+        "summary": "List Billable Users",
+        "operationId": "getBillableUsers",
+        "responses": {
+          "200": {
+            "description": "All of the users assigned to the billable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BillableUser"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/billables/{billableId}/users/{userId}": {
+      "parameters": [
+        {
+          "name": "billableId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Billables"],
+        "summary": "Get Shop Billable User",
+        "operationId": "getBillableUser",
+        "responses": {
+          "200": {
+            "description": "Get a specific billable user by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillableUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Shop Billables"],
+        "summary": "Add a user to a billable",
+        "operationId": "addBillableUser",
+        "requestBody": {
+          "description": "Relationship data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertBillableUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Billable User Added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillableUser"
+                }
+              }
+            }
+          },
+          "204": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shop Billables"],
+        "summary": "Delete Shop Billable User",
+        "operationId": "removeUserFromBillable",
+        "responses": {
+          "204": {
+            "description": "The billable user was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/billables/{billableId}/usage": {
+      "parameters": [
+        {
+          "name": "billableId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "tags": ["Shop Billables"],
+        "summary": "Report Usage against a billable",
+        "operationId": "reportUsage",
+        "requestBody": {
+          "description": "Report Usage against a billable for metered usage",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportUsage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usage Recorded"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/meters": {
+      "get": {
+        "tags": ["Shop Meters"],
+        "summary": "List Shop Meters",
+        "operationId": "getShopMeters",
+        "responses": {
+          "200": {
+            "description": "All of the meters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopMeter"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Meters"],
+        "summary": "Create Shop Meter",
+        "operationId": "createShopMeter",
+        "requestBody": {
+          "description": "Create Shop Meter Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopMeter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shop Meter Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopMeter"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/meters/{meterId}": {
+      "parameters": [
+        {
+          "name": "meterId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Meters"],
+        "summary": "Get Shop Meter",
+        "operationId": "getShopMeter",
+        "responses": {
+          "200": {
+            "description": "Get a specific meter by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopMeter"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Shop Meters"],
+        "summary": "Update Shop Meter",
+        "operationId": "updateShopMeter",
+        "requestBody": {
+          "description": "Create Shop Meter Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopMeter"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Shop Meter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopMeter"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shop Meters"],
+        "summary": "Delete Shop Meter",
+        "operationId": "deleteShopMeter",
+        "responses": {
+          "204": {
+            "description": "The application was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/plans": {
+      "get": {
+        "tags": ["Shop Plans"],
+        "summary": "List Shop Plans",
+        "operationId": "getShopPlans",
+        "responses": {
+          "200": {
+            "description": "All of the plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopPlan"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Plans"],
+        "summary": "Create Shop Plan",
+        "operationId": "createShopPlan",
+        "requestBody": {
+          "description": "Create Shop Plan Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shop Plan Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPlan"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/plans/{planId}": {
+      "parameters": [
+        {
+          "name": "planId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Plans"],
+        "summary": "Get Shop Plan",
+        "operationId": "getShopPlan",
+        "responses": {
+          "200": {
+            "description": "Get a specific plan by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPlan"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Shop Plans"],
+        "summary": "Update Shop Plan",
+        "operationId": "updateShopPlan",
+        "requestBody": {
+          "description": "Create Shop Plan Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopPlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Shop Plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPlan"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shop Plans"],
+        "summary": "Delete Shop Plan",
+        "operationId": "deleteShopPlan",
+        "responses": {
+          "204": {
+            "description": "The application was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/products": {
+      "get": {
+        "tags": ["Shop Products"],
+        "summary": "List Shop Products",
+        "operationId": "getShopProducts",
+        "responses": {
+          "200": {
+            "description": "All of the products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopProduct"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Products"],
+        "summary": "Create Shop Product",
+        "operationId": "createShopProduct",
+        "requestBody": {
+          "description": "Create Shop Product Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopProduct"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shop Product Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopProduct"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/products/{productId}": {
+      "parameters": [
+        {
+          "name": "productId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Products"],
+        "summary": "Get Shop Product",
+        "operationId": "getShopProduct",
+        "responses": {
+          "200": {
+            "description": "Get a specific product by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopProduct"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Shop Products"],
+        "summary": "Update Shop Product",
+        "operationId": "updateShopProduct",
+        "requestBody": {
+          "description": "Create Shop Product Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopProduct"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Shop Product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopProduct"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shop Products"],
+        "summary": "Delete Shop Product",
+        "operationId": "deleteShopProduct",
+        "responses": {
+          "204": {
+            "description": "The application was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/products/{productId}/prices": {
+      "parameters": [
+        {
+          "name": "productId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "parameters": [
+          {
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["product"]
+              }
+            }
+          }
+        ],
+        "tags": ["Shop Prices"],
+        "summary": "List Shop Prices",
+        "operationId": "getShopPrices",
+        "responses": {
+          "200": {
+            "description": "All of the prices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopPrice"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Prices"],
+        "summary": "Create Shop Price",
+        "operationId": "createShopPrice",
+        "requestBody": {
+          "description": "Create Shop Price Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopPrice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shop Price Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPrice"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/products/{productId}/prices/{priceId}": {
+      "parameters": [
+        {
+          "name": "productId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "priceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "parameters": [
+          {
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["product"]
+              }
+            }
+          }
+        ],
+        "tags": ["Shop Prices"],
+        "summary": "Get Shop Price",
+        "operationId": "getShopPrice",
+        "responses": {
+          "200": {
+            "description": "Get a specific product by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPrice"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Shop Prices"],
+        "summary": "Update Shop Price",
+        "operationId": "updateShopPrice",
+        "requestBody": {
+          "description": "Create Shop Price Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopPrice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Shop Price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPrice"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shop Prices"],
+        "summary": "Delete Shop Price",
+        "operationId": "deleteShopPrice",
+        "responses": {
+          "204": {
+            "description": "The application was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/plans/{planId}/revisions": {
+      "parameters": [
+        {
+          "name": "planId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Plan Revisions"],
+        "summary": "List Shop Plans",
+        "operationId": "getShopPlanRevisions",
+        "responses": {
+          "200": {
+            "description": "All of the plan revisions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopPlanRevision"
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Plan Revisions"],
+        "summary": "Create Shop Plan",
+        "operationId": "createShopPlanRevision",
+        "requestBody": {
+          "description": "Create Shop Plan Revision Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopPlanRevision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shop Plan Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPlanRevision"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/plans/{planId}/revisions/{planRevisionId}": {
+      "parameters": [
+        {
+          "name": "planId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "planRevisionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Plan Revisions"],
+        "summary": "Get Shop Plan Revision",
+        "operationId": "getShopPlanRevision",
+        "responses": {
+          "200": {
+            "description": "Get a specific plan revision by ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopPlanRevision"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/scopes": {
+      "get": {
+        "tags": ["Scopes"],
+        "summary": "Get all scopes",
+        "operationId": "getAllScopes",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the scopes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Scope"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Scopes"],
+        "summary": "Create a new scope",
+        "operationId": "createScope",
+        "requestBody": {
+          "description": "The initial values of the scope",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopeEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scope"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/scopes/{scopeId}": {
+      "parameters": [
+        {
+          "name": "scopeId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Scopes"],
+        "summary": "Get a scope",
+        "operationId": "getScope",
+        "responses": {
+          "200": {
+            "description": "The requested scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scope"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Scopes"],
+        "summary": "Update a scope",
+        "operationId": "updateScope",
+        "requestBody": {
+          "description": "The fields that need to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopeEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scope"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Scopes"],
+        "summary": "Delete a scope",
+        "operationId": "deleteScope",
+        "responses": {
+          "204": {
+            "description": "The scope was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/permissions": {
+      "get": {
+        "tags": ["Permissions"],
+        "summary": "Get all permissions",
+        "operationId": "getAllPermissions",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Permission"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Permissions"],
+        "summary": "Create a new permission",
+        "operationId": "createPermission",
+        "requestBody": {
+          "description": "The initial values of the permission",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermissionEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/permissions/{permissionId}": {
+      "parameters": [
+        {
+          "name": "permissionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Permissions"],
+        "summary": "Get a permission",
+        "operationId": "getPermission",
+        "responses": {
+          "200": {
+            "description": "The requested permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Permissions"],
+        "summary": "Update a permission",
+        "operationId": "updatePermission",
+        "requestBody": {
+          "description": "The fields that need to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PermissionEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Permissions"],
+        "summary": "Delete a permission",
+        "operationId": "deletePermission",
+        "responses": {
+          "204": {
+            "description": "The permission was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "tags": ["Roles"],
+        "summary": "Get all roles",
+        "operationId": "getAllRoles",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RoleListItem"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Roles"],
+        "summary": "Create a new role",
+        "operationId": "createRole",
+        "requestBody": {
+          "description": "The initial values of the role",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/roles/{roleId}": {
+      "parameters": [
+        {
+          "name": "roleId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Roles"],
+        "summary": "Get a role",
+        "operationId": "getRole",
+        "responses": {
+          "200": {
+            "description": "The requested role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Roles"],
+        "summary": "Update a role",
+        "operationId": "updateRole",
+        "requestBody": {
+          "description": "The fields that need to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Roles"],
+        "summary": "Delete a role",
+        "operationId": "deleteRole",
+        "responses": {
+          "204": {
+            "description": "The role was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get all users",
+        "operationId": "getAllUsers",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserListItem"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a new User",
+        "operationId": "createUser",
+        "requestBody": {
+          "description": "The initial values of the User",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get a user",
+        "operationId": "getUser",
+        "responses": {
+          "200": {
+            "description": "The requested user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Update a user",
+        "operationId": "updateUser",
+        "requestBody": {
+          "description": "The fields that need to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete a user",
+        "operationId": "deleteUser",
+        "responses": {
+          "204": {
+            "description": "The user was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/users/{userId}/actions": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user actions",
+        "operationId": "getUserActions",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the actions for a user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserAction"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/users/{userId}/invite": {
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "tags": ["Users"],
+        "summary": "Send invite",
+        "operationId": "sendInvite",
+        "requestBody": {
+          "description": "Invite details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated user model",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Revoke Invite",
+        "operationId": "revokeUserInvite",
+        "responses": {
+          "204": {
+            "description": "The user was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/Unprocessable"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/api-tokens": {
+      "get": {
+        "tags": ["ApiTokens"],
+        "summary": "Get all apiTokens",
+        "operationId": "getAllApiTokens",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the apiTokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ApiTokenListItem"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["ApiTokens"],
+        "summary": "Create a new apiToken",
+        "operationId": "createApiToken",
+        "requestBody": {
+          "description": "The initial values of the apiToken",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiTokenEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created apiToken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewApiToken"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/api-tokens/{apiTokenId}": {
+      "parameters": [
+        {
+          "name": "apiTokenId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["ApiTokens"],
+        "summary": "Get a apiToken",
+        "operationId": "getApiToken",
+        "responses": {
+          "200": {
+            "description": "The requested apiToken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiToken"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["ApiTokens"],
+        "summary": "Update a apiToken",
+        "operationId": "updateApiToken",
+        "requestBody": {
+          "description": "The fields that need to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiTokenEditable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated apiToken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiToken"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["ApiTokens"],
+        "summary": "Delete a apiToken",
+        "operationId": "deleteApiToken",
+        "responses": {
+          "204": {
+            "description": "The apiToken was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Pagination-Page": {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "Pagination-Per-Page": {
+        "name": "per_page",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 50
+        }
+      },
+      "Search": {
+        "in": "query",
+        "name": "search",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "InvalidInput": {
+        "description": "Invalid User Input",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The specified resource was not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unprocessable": {
+        "description": "The request could not be processed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "There was a conflict in the specified resource action",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthenticated": {
+        "description": "The user is not logged in",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UnexpectedError": {
+        "description": "An Unexpected Error Occured",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "title": "Error",
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "description": "A human readable error message",
+            "type": "string"
+          }
+        }
+      },
+      "PaginationMetadata": {
+        "title": "Pagination Metadata",
+        "type": "object",
+        "required": ["page", "total", "limit"],
+        "properties": {
+          "page": {
+            "description": "The current page that has been requested",
+            "type": "integer"
+          },
+          "total": {
+            "description": "The total number of records that exist",
+            "type": "integer"
+          },
+          "limit": {
+            "description": "The record limit per page",
+            "type": "integer"
+          }
+        }
+      },
+      "ApplicationMetrics": {
+        "title": "Application Metrics",
+        "type": "object",
+        "properties": {
+          "newUsers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "signups": {
+                  "type": "integer"
+                },
+                "applicationInvites": {
+                  "type": "integer"
+                }
+              },
+              "required": ["day", "total", "signups", "applicationInvites"],
+              "additionalProperties": false
+            }
+          },
+          "totalUsers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "total": {
+                  "type": "integer"
+                }
+              },
+              "required": ["day", "total"],
+              "additionalProperties": false
+            }
+          },
+          "logins": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": ["total"]
+          },
+          "signups": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": ["total"]
+          },
+          "activeUsers": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": ["total"]
+          },
+          "logouts": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": ["total"]
+          }
+        },
+        "required": [
+          "newUsers",
+          "totalUsers",
+          "logins",
+          "signups",
+          "activeUsers",
+          "logouts"
+        ],
+        "additionalProperties": false
+      },
+      "Application": {
+        "title": "Application",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "redirectUrls",
+          "firstParty",
+          "postLogoutRedirectUris",
+          "scopes",
+          "clientType",
+          "applicationType",
+          "clientSecret"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "redirectUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "firstParty": {
+            "type": "boolean"
+          },
+          "postLogoutRedirectUris": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationScope"
+            }
+          },
+          "clientType": {
+            "type": "string",
+            "enum": ["public", "confidential"]
+          },
+          "applicationType": {
+            "type": "string",
+            "enum": ["web", "native"]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApplicationScope": {
+        "title": "Application Scope",
+        "type": "object",
+        "required": ["name", "id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateApplication": {
+        "title": "Create Application",
+        "type": "object",
+        "required": ["name", "clientType", "applicationType"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "clientType": {
+            "type": "string",
+            "enum": ["public", "confidential"]
+          },
+          "applicationType": {
+            "type": "string",
+            "enum": ["web", "native"]
+          }
+        }
+      },
+      "ApplicationListItem": {
+        "title": "Application List Item",
+        "type": "object",
+        "required": ["id", "name", "clientType", "applicationType"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "clientType": {
+            "type": "string",
+            "enum": ["public", "confidential"]
+          },
+          "applicationType": {
+            "type": "string",
+            "enum": ["web", "native"]
+          }
+        }
+      },
+      "UpdateApplication": {
+        "title": "Create Application",
+        "type": "object",
+        "required": [
+          "name",
+          "redirectUrls",
+          "firstParty",
+          "postLogoutRedirectUris"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "redirectUrls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "maxItems": 32
+          },
+          "firstParty": {
+            "type": "boolean"
+          },
+          "postLogoutRedirectUris": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 32
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "ShopService": {
+        "title": "Shop Service",
+        "type": "object",
+        "required": ["id", "name", "description"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateShopService": {
+        "title": "Create Shop Service",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1024
+          }
+        }
+      },
+      "UpdateShopService": {
+        "title": "Update Shop Service",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1024
+          }
+        }
+      },
+      "ShopBillable": {
+        "title": "Shop Billable",
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateShopBillable": {
+        "title": "Create Shop Billable",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          }
+        }
+      },
+      "UpdateShopBillable": {
+        "title": "Update Shop Billable",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          }
+        }
+      },
+      "BillableUser": {
+        "title": "Billable User",
+        "type": "object",
+        "required": ["user", "billableId", "role"],
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserListItem"
+          },
+          "billableId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "beneficiary"]
+          }
+        }
+      },
+      "UpsertBillableUser": {
+        "title": "Upsert Billable User",
+        "type": "object",
+        "required": ["role"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["admin", "beneficiary"]
+          }
+        }
+      },
+      "ReportUsage": {
+        "title": "Report Usage",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer"
+          },
+          "meterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ShopMeter": {
+        "title": "Shop Meter",
+        "type": "object",
+        "required": ["id", "name", "stripeMeterId"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stripeMeterId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateShopMeter": {
+        "title": "Create Shop Meter",
+        "type": "object",
+        "required": ["name", "aggregationMethod"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "aggregationMethod": {
+            "type": "string",
+            "enum": ["sum", "count"]
+          },
+          "stripeMeterId": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateShopMeter": {
+        "title": "Update Shop Meter",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "stripeMeterId": {
+            "type": "string"
+          }
+        }
+      },
+      "ShopPlan": {
+        "title": "Shop Plan",
+        "type": "object",
+        "required": ["id", "name", "service"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "service": {
+            "$ref": "#/components/schemas/ShopService"
+          }
+        }
+      },
+      "CreateShopPlan": {
+        "title": "Create Shop Plan",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpdateShopPlan": {
+        "title": "Update Shop Plan",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          }
+        }
+      },
+      "ShopProviderProduct": {
+        "title": "Shop Provider Product",
+        "type": "object",
+        "required": ["id", "name", "provider", "providerProductId"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "providerProductId": {
+            "type": "string"
+          }
+        }
+      },
+      "ShopProviderPrice": {
+        "title": "Shop Provider Price",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "provider",
+          "providerPriceId",
+          "currency",
+          "recurring",
+          "recurringInterval",
+          "recurringIntervalFrequency",
+          "providerMeterId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "providerPriceId": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "recurring": {
+            "type": "boolean"
+          },
+          "recurringInterval": {
+            "type": "string",
+            "nullable": true
+          },
+          "recurringIntervalFrequency": {
+            "type": "integer",
+            "nullable": true
+          },
+          "providerMeterId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ShopProduct": {
+        "title": "Shop Product",
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "paddleProviderProductId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stripeProviderProductId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "name"]
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "name"]
+            }
+          }
+        }
+      },
+      "CreateShopProduct": {
+        "title": "Create Shop Product",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "paddleProviderProductId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "stripeProviderProductId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "UpdateShopProduct": {
+        "title": "Update Shop Product",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "paddleProviderProductId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stripeProviderProductId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "BillingScheme": {
+        "type": "string",
+        "enum": ["per_unit", "tiered", null],
+        "nullable": true
+      },
+      "TiersMode": {
+        "type": "string",
+        "enum": ["volume", "graduated", null],
+        "nullable": true
+      },
+      "ShopPrice": {
+        "title": "Shop Price",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "productId",
+          "currency",
+          "recurring",
+          "recurringInterval",
+          "recurringIntervalFrequency",
+          "meterId",
+          "transformQuantityRound",
+          "transformQuantityDivideBy",
+          "tiersMode",
+          "tiers",
+          "billingScheme",
+          "unitAmount",
+          "stripePrice",
+          "paddlePrice"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "recurring": {
+            "type": "boolean"
+          },
+          "recurringInterval": {
+            "type": "string",
+            "nullable": true
+          },
+          "recurringIntervalFrequency": {
+            "type": "integer",
+            "nullable": true
+          },
+          "stripePrice": {
+            "anyOf": [
+              {
+                "type": "object",
+                "nullable": true,
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/components/schemas/ShopProviderPrice"
+              }
+            ]
+          },
+          "paddlePrice": {
+            "anyOf": [
+              {
+                "type": "object",
+                "nullable": true,
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/components/schemas/ShopProviderPrice"
+              }
+            ]
+          },
+          "meterId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "transformQuantityRound": {
+            "type": "string",
+            "enum": ["up", "down", null],
+            "nullable": true
+          },
+          "transformQuantityDivideBy": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "tiersMode": {
+            "$ref": "#/components/schemas/TiersMode"
+          },
+          "tiers": {
+            "items": {
+              "properties": {
+                "upTo": {
+                  "type": "number",
+                  "format": "double"
+                },
+                "unitAmount": {
+                  "type": "number",
+                  "format": "double"
+                },
+                "flatAmount": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "required": ["upTo", "unitAmount", "flatAmount"],
+              "type": "object"
+            },
+            "type": "array",
+            "nullable": true
+          },
+          "billingScheme": {
+            "$ref": "#/components/schemas/BillingScheme"
+          },
+          "unitAmount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "product": {
+            "$ref": "#/components/schemas/ShopProduct"
+          }
+        }
+      },
+      "CreateShopPrice": {
+        "title": "Create Shop Price",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "paddleProviderPriceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stripeProviderPriceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpdateShopPrice": {
+        "title": "Update Shop Price",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "paddleProviderPriceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stripeProviderPriceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ShopPlanRevision": {
+        "title": "Shop Plan Revision",
+        "type": "object",
+        "required": ["id", "prices", "createdAt", "updatedAt"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "prices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShopPrice"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateShopPlanRevision": {
+        "title": "Create Shop Plan Revision",
+        "type": "object",
+        "required": ["prices"],
+        "properties": {
+          "prices": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "Scope": {
+        "title": "Scope",
+        "type": "object",
+        "required": ["id", "name", "isSystemScope"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isSystemScope": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ScopeEditable": {
+        "title": "Editable Scope",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
+      },
+      "Permission": {
+        "title": "Permission",
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PermissionEditable": {
+        "title": "Editable Permission",
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
+      },
+      "RoleListItem": {
+        "title": "Role List Item",
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "RoleEditable": {
+        "title": "Editable Role",
+        "type": "object",
+        "required": ["name", "permissions"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "Role": {
+        "title": "Role",
+        "type": "object",
+        "required": ["id", "name", "permissions"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
+          }
+        }
+      },
+      "UserListItem": {
+        "title": "User List Item",
+        "type": "object",
+        "required": ["id", "name", "email"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "CreateUser": {
+        "title": "Create User",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "sendInvite": {
+            "type": "boolean",
+            "default": true
+          },
+          "inviteExpiresAfterSeconds": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 7776000
+          },
+          "inviteMessage": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        },
+        "required": ["name", "email", "permissions", "roles", "sendInvite"]
+      },
+      "InviteUser": {
+        "title": "User Editable",
+        "type": "object",
+        "required": ["inviteExpiresAfterSeconds", "inviteMessage"],
+        "properties": {
+          "inviteExpiresAfterSeconds": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 7776000
+          },
+          "inviteMessage": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        }
+      },
+      "UpdateUser": {
+        "title": "User Editable",
+        "type": "object",
+        "required": ["name", "permissions", "roles"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 256
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "User": {
+        "title": "User",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "permissions",
+          "roles",
+          "inviteSentAt",
+          "inviteExpiresAt",
+          "inviteMessage",
+          "inviteAcceptedAt",
+          "userCreationStatus",
+          "emailVerifiedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleListItem"
+            }
+          },
+          "inviteSentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "inviteExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "inviteMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "inviteAcceptedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "userCreationStatus": {
+            "type": "string",
+            "enum": ["SIGNUP", "TENANT_INVITE"]
+          },
+          "emailVerifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "UserActionType": {
+        "type": "string",
+        "enum": [
+          "LOGIN",
+          "SIGNUP",
+          "LOGOUT",
+          "REQUEST_PASSWORD_RESET",
+          "RESET_PASSWORD",
+          "UPDATE_ACCOUNT",
+          "LINK_AUTH_PROVIDER",
+          "CLIENT_CONSENT",
+          "ACCEPT_TENANT_INVITE"
+        ]
+      },
+      "UserAction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UserActionType"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["type"]
+      },
+      "ApiTokenPermission": {
+        "type": "string",
+        "enum": [
+          "keys-read",
+          "keys-rotate",
+          "applications-create",
+          "applications-read",
+          "applications-update",
+          "applications-delete",
+          "permissions-create",
+          "permissions-read",
+          "permissions-update",
+          "permissions-delete",
+          "roles-create",
+          "roles-read",
+          "roles-update",
+          "roles-delete",
+          "users-create",
+          "users-read",
+          "users-update",
+          "users-delete",
+          "users-actions-read",
+          "users-invite",
+          "users-revoke-invite",
+          "auth-providers-read",
+          "auth-providers-update",
+          "scopes-create",
+          "scopes-read",
+          "scopes-update",
+          "scopes-delete",
+          "api-tokens-create",
+          "api-tokens-read",
+          "api-tokens-update",
+          "api-tokens-delete",
+          "shop-provider-products-read",
+          "shop-provider-prices-read",
+          "shop-services-read",
+          "shop-services-create",
+          "shop-services-update",
+          "shop-services-delete",
+          "shop-meters-read",
+          "shop-meters-create",
+          "shop-meters-update",
+          "shop-meters-delete",
+          "shop-plans-read",
+          "shop-plans-create",
+          "shop-plans-update",
+          "shop-plans-delete",
+          "shop-plan-revisions-read",
+          "shop-plan-revisions-create",
+          "shop-products-read",
+          "shop-products-create",
+          "shop-products-update",
+          "shop-products-delete",
+          "shop-prices-read",
+          "shop-prices-create",
+          "shop-prices-update",
+          "shop-prices-delete",
+          "billables-read",
+          "billables-create",
+          "billables-update",
+          "billables-delete",
+          "billables-report-usage",
+          "billable-users-read",
+          "billable-users-update",
+          "billable-users-delete"
+        ]
+      },
+      "ApiTokenEditable": {
+        "title": "Editable ApiToken",
+        "type": "object",
+        "required": ["name", "permissions"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiTokenPermission"
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "ApiTokenListItem": {
+        "title": "ApiToken",
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiToken": {
+        "title": "ApiToken",
+        "type": "object",
+        "required": ["id", "name", "permissions"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiTokenPermission"
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "NewApiToken": {
+        "title": "ApiToken",
+        "type": "object",
+        "required": ["id", "name", "secret", "permissions"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiTokenPermission"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}
