@@ -3961,28 +3961,12 @@
             "nullable": true
           },
           "stripePrice": {
-            "anyOf": [
-              {
-                "type": "object",
-                "nullable": true,
-                "additionalProperties": false
-              },
-              {
-                "$ref": "#/components/schemas/ShopProviderPrice"
-              }
-            ]
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/ShopProviderPrice" }]
           },
           "paddlePrice": {
-            "anyOf": [
-              {
-                "type": "object",
-                "nullable": true,
-                "additionalProperties": false
-              },
-              {
-                "$ref": "#/components/schemas/ShopProviderPrice"
-              }
-            ]
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/ShopProviderPrice" }]
           },
           "meterId": {
             "type": "string",
