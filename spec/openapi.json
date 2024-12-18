@@ -4058,12 +4058,28 @@
             "nullable": true
           },
           "stripePrice": {
-            "nullable": true,
-            "allOf": [{ "$ref": "#/components/schemas/ShopProviderPrice" }]
+            "anyOf": [
+              {
+                "type": "object",
+                "nullable": true,
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/components/schemas/ShopProviderPrice"
+              }
+            ]
           },
           "paddlePrice": {
-            "nullable": true,
-            "allOf": [{ "$ref": "#/components/schemas/ShopProviderPrice" }]
+            "anyOf": [
+              {
+                "type": "object",
+                "nullable": true,
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/components/schemas/ShopProviderPrice"
+              }
+            ]
           },
           "meterId": {
             "type": "string",
@@ -4676,8 +4692,16 @@
             "format": "date-time"
           },
           "lastWebhookAttempt": {
-            "nullable": true,
-            "allOf": [{ "$ref": "#/components/schemas/WebhookAttempt" }]
+            "anyOf": [
+              {
+                "type": "object",
+                "nullable": true,
+                "additionalProperties": false
+              },
+              {
+                "$ref": "#/components/schemas/WebhookAttempt"
+              }
+            ]
           },
           "webhookAttempts": {
             "type": "array",
