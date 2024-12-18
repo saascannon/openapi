@@ -3105,6 +3105,103 @@
           }
         }
       }
+    },
+    "/events": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get tenant events",
+        "operationId": "getTenantEvents",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/events/{eventId}": {
+      "parameters": [
+        {
+          "name": "eventId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get tenant event",
+        "operationId": "getTenantEvent",
+        "responses": {
+          "200": {
+            "description": "Get tenant event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4551,6 +4648,96 @@
             "uniqueItems": true
           }
         }
+      },
+      "Event": {
+        "title": "Event",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              }
+            ],
+            "format": "json"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastWebhookAttempt": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/WebhookAttempt" }]
+          },
+          "webhookAttempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebhookAttempt"
+            }
+          }
+        },
+        "required": ["id", "type", "createdAt", "payload"],
+        "additionalProperties": false
+      },
+      "WebhookAttempt": {
+        "title": "Webhook Attempt",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "attempt": {
+            "type": "integer",
+            "description": "The attempt number"
+          },
+          "webhookUrl": {
+            "type": "string",
+            "description": "The url that the webhook was sent to"
+          },
+          "response": {
+            "type": "object",
+            "description": "The response from the webhook",
+            "properties": {
+              "statusCode": {
+                "type": "integer",
+                "description": "The status code of the response"
+              },
+              "protocolVersion": {
+                "type": "string",
+                "description": "The protocol of the response"
+              },
+              "body": {
+                "type": "string",
+                "description": "The body of the response"
+              },
+              "headers": {
+                "type": "object",
+                "description": "The headers of the response"
+              }
+            },
+            "required": ["statusCode", "protocolVersion", "body", "headers"],
+            "nullable": true,
+            "additionalProperties": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The time the webhook was sent"
+          }
+        },
+        "required": ["id", "attempt", "webhookUrl", "response", "createdAt"],
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
