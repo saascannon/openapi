@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Saascannon API",
     "description": "Manage Saascannon Instance Resources"
   },
@@ -588,6 +588,42 @@
     },
     "/shop/billables": {
       "get": {
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "maxItems": 8,
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  ],
+                  "description": "Filter billables which have a user with the given ID"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": ["admin", "beneficiary"],
+                  "description": "Filter billables where the provided users filter has a given role on the billable. Only valid if filter.users is also provided."
+                }
+              }
+            }
+          }
+        ],
         "tags": ["Shop Billables"],
         "summary": "List Shop Billables",
         "operationId": "getShopBillables",
@@ -599,6 +635,19 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
                     "data": {
                       "type": "array",
                       "items": {
@@ -606,7 +655,7 @@
                       }
                     }
                   },
-                  "required": ["data"],
+                  "required": ["data", "metadata"],
                   "additionalProperties": false
                 }
               }
@@ -781,15 +830,17 @@
             "type": "string",
             "format": "uuid"
           }
-        },
-        { "$ref": "#/components/parameters/Pagination-Page" },
-        { "$ref": "#/components/parameters/Pagination-Per-Page" },
-        { "$ref": "#/components/parameters/Search" }
+        }
       ],
       "get": {
         "tags": ["Shop Billables"],
         "summary": "List Billable Users",
         "operationId": "getBillableUsers",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
         "responses": {
           "200": {
             "description": "All of the users assigned to the billable",
@@ -939,6 +990,254 @@
         "responses": {
           "204": {
             "description": "The billable user was deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/subscriptions": {
+      "get": {
+        "tags": ["Shop Subscriptions"],
+        "summary": "Get subscriptions",
+        "operationId": "getAllSubscriptions",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "billableId": {
+                  "description": "Filter subscriptions by billable ID",
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopSubscription"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Shop Subscriptions"],
+        "summary": "Create a manual subscription",
+        "operationId": "createSubscription",
+        "requestBody": {
+          "description": "Create Subscription Body",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShopSubscription"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Subscription Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopSubscription"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
+    "/shop/subscriptions/{subscriptionId}": {
+      "parameters": [
+        {
+          "name": "subscriptionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Subscriptions"],
+        "summary": "Get a subscription",
+        "operationId": "getSubscription",
+        "responses": {
+          "200": {
+            "description": "The requested subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopSubscription"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Shop Subscriptions"],
+        "summary": "Update a subscription",
+        "operationId": "updateSubscription",
+        "requestBody": {
+          "description": "The fields that need to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShopSubscription"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopSubscription"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shop/subscriptions/{subscriptionId}/invoices": {
+      "parameters": [
+        {
+          "name": "subscriptionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Shop Subscriptions"],
+        "summary": "Get subscription invoices",
+        "operationId": "getSubscriptionInvoices",
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the invoices for the subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ShopInvoice"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Unauthenticated"
@@ -1188,6 +1487,11 @@
     },
     "/shop/plans": {
       "get": {
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
         "tags": ["Shop Plans"],
         "summary": "List Shop Plans",
         "operationId": "getShopPlans",
@@ -1199,6 +1503,19 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
                     "data": {
                       "type": "array",
                       "items": {
@@ -1206,7 +1523,7 @@
                       }
                     }
                   },
-                  "required": ["data"],
+                  "required": ["data", "metadata"],
                   "additionalProperties": false
                 }
               }
@@ -1811,6 +2128,11 @@
         }
       ],
       "get": {
+        "parameters": [
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
         "tags": ["Shop Plan Revisions"],
         "summary": "List Shop Plans",
         "operationId": "getShopPlanRevisions",
@@ -1822,6 +2144,19 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
                     "data": {
                       "type": "array",
                       "items": {
@@ -1829,7 +2164,7 @@
                       }
                     }
                   },
-                  "required": ["data"],
+                  "required": ["data", "metadata"],
                   "additionalProperties": false
                 }
               }
@@ -2822,6 +3157,74 @@
         }
       }
     },
+    "/users/{userId}/billables": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user billables",
+        "operationId": "getUserBillables",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          { "$ref": "#/components/parameters/Pagination-Page" },
+          { "$ref": "#/components/parameters/Pagination-Per-Page" },
+          { "$ref": "#/components/parameters/Search" }
+        ],
+        "responses": {
+          "200": {
+            "description": "All of the billables for a user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "$ref": "#/components/schemas/PaginationMetadata"
+                        },
+                        "search": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["pagination"],
+                      "additionalProperties": false
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserBillable"
+                      }
+                    }
+                  },
+                  "required": ["data", "metadata"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/UnexpectedError"
+          }
+        }
+      }
+    },
     "/users/{userId}/invite": {
       "parameters": [
         {
@@ -3684,6 +4087,184 @@
           }
         }
       },
+      "UserBillable": {
+        "title": "User Billable",
+        "type": "object",
+        "required": ["billable", "isUserBillable", "role"],
+        "properties": {
+          "billable": {
+            "$ref": "#/components/schemas/ShopBillable"
+          },
+          "isUserBillable": {
+            "type": "boolean",
+            "description": "Whether the billable is a user billable. https://docs.saascannon.com/shop/concepts/billables#user-billables"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "beneficiary"]
+          }
+        }
+      },
+      "CreateShopSubscription": {
+        "title": "Create Shop Subscription",
+        "type": "object",
+        "properties": {
+          "billableId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string",
+            "enum": ["manual"]
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planRevisionId": {
+            "description": "Specify a plan revision. If one is not provided the latest revision will be used.",
+            "type": "integer"
+          },
+          "currentPeriodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["billableId", "provider", "planId", "currentPeriodStart"]
+      },
+      "UpdateShopSubscription": {
+        "title": "Update Shop Subscription",
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planRevisionId": {
+            "description": "Specify a plan revision. If one is not provided the latest revision will be used.",
+            "type": "integer"
+          },
+          "currentPeriodStart": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Update the current period start date. This can only be set for manual provider subscriptions."
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Update the current period end date. This can only be set for manual provider subscriptions."
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ShopSubscription": {
+        "title": "Subscription",
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "plan",
+          "currentPeriodStart",
+          "currentPeriodEnd",
+          "cancelAtPeriodEnd",
+          "provider",
+          "updatedAt",
+          "createdAt",
+          "providerSubscriptionId",
+          "planRevisionId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/ShopPlan"
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "currentPeriodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "providerSubscriptionId": {
+            "type": "string"
+          },
+          "planRevisionId": {
+            "type": "integer"
+          }
+        }
+      },
+      "ShopInvoice": {
+        "title": "Shop Invoice",
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "totalAmount",
+          "currency",
+          "createdAt",
+          "updatedAt",
+          "pdfUrl",
+          "invoiceNumber"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "integer"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pdfUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "invoiceNumber": {
+            "type": "string"
+          }
+        }
+      },
       "UpsertBillableUser": {
         "title": "Upsert Billable User",
         "type": "object",
@@ -3766,7 +4347,7 @@
       "ShopPlan": {
         "title": "Shop Plan",
         "type": "object",
-        "required": ["id", "name", "service"],
+        "required": ["id", "name", "subscribable"],
         "properties": {
           "id": {
             "type": "string",
@@ -3774,6 +4355,10 @@
           },
           "name": {
             "type": "string"
+          },
+          "subscribable": {
+            "type": "boolean",
+            "description": "Indicates if the plan is currently subscribable. It could have been subscribable in the past, and can always be assigned to manual subscriptions."
           },
           "service": {
             "$ref": "#/components/schemas/ShopService"
@@ -3783,12 +4368,16 @@
       "CreateShopPlan": {
         "title": "Create Shop Plan",
         "type": "object",
-        "required": ["name"],
+        "required": ["name", "serviceId", "subscribable"],
         "properties": {
           "name": {
             "type": "string",
             "minimum": 1,
             "maximum": 128
+          },
+          "subscribable": {
+            "type": "boolean",
+            "description": "Indicates if the plan is currently subscribable. It could have been subscribable in the past, and can always be assigned to manual subscriptions."
           },
           "serviceId": {
             "type": "string",
@@ -3804,6 +4393,10 @@
             "type": "string",
             "minimum": 1,
             "maximum": 128
+          },
+          "subscribable": {
+            "type": "boolean",
+            "description": "Indicates if the plan is currently subscribable. It could have been subscribable in the past, and can always be assigned to manual subscriptions."
           }
         }
       },
@@ -4545,6 +5138,7 @@
           "users-actions-read",
           "users-invite",
           "users-revoke-invite",
+          "users-billables-read",
           "auth-providers-read",
           "auth-providers-update",
           "scopes-create",
@@ -4579,6 +5173,10 @@
           "shop-prices-create",
           "shop-prices-update",
           "shop-prices-delete",
+          "shop-subscriptions-read",
+          "shop-subscriptions-create",
+          "shop-subscriptions-update",
+          "shop-subscription-invoices-read",
           "billables-read",
           "billables-create",
           "billables-update",
